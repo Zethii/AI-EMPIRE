@@ -1,0 +1,24 @@
+# Domain registry. Departments are descriptions only at this stage.
+version: 1
+status: draft
+divisions:
+  digital-business:
+    directory: divisions/digital-business
+    enabled: false
+    focus: product research, validation, creation, packaging and distribution
+  youtube-media:
+    directory: divisions/youtube-media
+    enabled: false
+    focus: YouTube channel strategy, video planning, production and analytics
+  gaming-content:
+    directory: divisions/gaming-content
+    enabled: false
+    focus: gaming clips, edits, short/long content and platform adaptation
+  software-development:
+    directory: divisions/software-development
+    enabled: false
+    focus: software requirements, design, coding, testing and documentation
+  research:
+    directory: divisions/research
+    enabled: false
+    focus: sourced research, comparisons, trends and analysis
