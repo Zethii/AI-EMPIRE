@@ -21,3 +21,6 @@ coverage/
 .cache/
 logs/
 *.log
+
+# Local task records may contain private project details
+data/tasks/
