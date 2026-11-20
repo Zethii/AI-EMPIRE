@@ -42,8 +42,12 @@ Return ONLY one valid JSON object with this exact structure:
   "requires_human_approval": false
 }
 Create 3 to 7 ordered steps. Use dependencies such as ["S1"] only when needed.
-Set approval_required true for steps involving publishing, sending messages, purchases,
-spending money, deleting data, sharing private information, or production changes.
+Set approval_required true for steps involving publishing, posting, uploading, sending messages,
+emails, contacting people, outreach, distributing surveys, inviting interview participants,
+conducting interviews with external people, purchases, spending money, deleting data,
+sharing private information, or production changes. Researching public information and
+drafting an unsent survey do not require approval; actually distributing it does.
+If any step requires approval, set requires_human_approval true.
 Never claim a step has been completed. Do not invent access, facts, or capabilities.
 If the request is ambiguous, list assumptions rather than pretending certainty.
 The plan is a proposal for the human to review, not permission to execute it."""
@@ -73,6 +77,13 @@ def validate_plan(plan: dict[str, Any]) -> None:
         raise ValueError("Plan is missing fields: " + ", ".join(sorted(missing)))
     if not isinstance(plan["steps"], list) or not 3 <= len(plan["steps"]) <= 7:
         raise ValueError("Plan must contain between 3 and 7 steps.")
+    approval_terms = (
+        "publish", "publishing", "post ", "posting", "upload", "send ", "sending",
+        "email", "contact ", "contacting", "outreach", "distribut", "survey",
+        "interview", "invite ", "inviting", "purchase", "buy ", "spend", "payment",
+        "delete", "remove ", "share private", "production deploy", "deploy to production",
+    )
+    any_approval = False
     for index, step in enumerate(plan["steps"], start=1):
         if not isinstance(step, dict):
             raise ValueError(f"Step {index} is not an object.")
@@ -83,8 +94,14 @@ def validate_plan(plan: dict[str, Any]) -> None:
             raise ValueError(f"Step {index} dependencies must be a list.")
         if not isinstance(step["approval_required"], bool):
             raise ValueError(f"Step {index} approval_required must be true or false.")
+        action_text = (str(step["title"]) + " " + str(step["description"])).lower()
+        if any(term in action_text for term in approval_terms):
+            step["approval_required"] = True
+        any_approval = any_approval or step["approval_required"]
     if not isinstance(plan["requires_human_approval"], bool):
         raise ValueError("requires_human_approval must be true or false.")
+    # Enforce the task-level flag if any individual step needs human approval.
+    plan["requires_human_approval"] = plan["requires_human_approval"] or any_approval
 
 
 def create_plan(user_request: str, model: str | None = None) -> dict[str, Any]:
