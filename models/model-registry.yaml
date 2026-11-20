@@ -1,0 +1,22 @@
+# Candidate provider registry; not configured.
+version: 1
+status: draft
+providers:
+  openai:
+    enabled: false
+    connection: not_configured
+  anthropic:
+    enabled: false
+    connection: not_configured
+  google:
+    enabled: false
+    connection: not_configured
+  deepseek:
+    enabled: false
+    connection: not_configured
+gateway:
+  selected: null
+  candidates:
+    - openrouter
+    - direct-provider-apis
+models: []
