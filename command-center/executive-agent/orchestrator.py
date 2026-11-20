@@ -5,6 +5,7 @@ This version plans only. It does not execute subtasks, use tools, or take extern
 """
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -15,6 +16,9 @@ GATEWAY_DIR = ROOT / "integrations" / "model-gateway"
 sys.path.insert(0, str(GATEWAY_DIR))
 
 from client import GatewayError, chat_completion  # noqa: E402
+TASK_MANAGER_DIR = ROOT / "command-center" / "task-manager"
+sys.path.insert(0, str(TASK_MANAGER_DIR))
+from task_store import save_plan  # noqa: E402
 
 
 SYSTEM_PROMPT = """You are the planning component of AI-EMPIRE.
@@ -102,18 +106,23 @@ def create_plan(user_request: str, model: str | None = None) -> dict[str, Any]:
 
 
 def main() -> None:
-    if len(sys.argv) < 2:
-        print('Usage: python3 command-center/executive-agent/orchestrator.py "Describe your task"')
-        raise SystemExit(2)
-    user_request = " ".join(sys.argv[1:]).strip()
+    parser = argparse.ArgumentParser(description="Create a reviewable AI-EMPIRE task plan.")
+    parser.add_argument("request", help="Describe the task you want AI-EMPIRE to plan.")
+    parser.add_argument("--save", action="store_true", help="Save the plan locally in data/tasks/.")
+    args = parser.parse_args()
+    user_request = args.request.strip()
     if not user_request:
-        print("Please provide a task description.")
-        raise SystemExit(2)
+        parser.error("Please provide a non-empty task description.")
+
     try:
         plan = create_plan(user_request)
-    except (GatewayError, ValueError, json.JSONDecodeError) as exc:
-        print(f"Could not create a valid plan: {exc}")
+        if args.save:
+            saved_path = save_plan(plan, user_request)
+            plan["saved_to"] = str(saved_path.relative_to(ROOT))
+    except (GatewayError, ValueError, json.JSONDecodeError, OSError) as exc:
+        print(f"Could not create or save the plan: {exc}")
         raise SystemExit(1)
+
     print(json.dumps(plan, indent=2, ensure_ascii=False))
 
 
