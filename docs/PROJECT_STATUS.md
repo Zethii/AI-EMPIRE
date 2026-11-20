@@ -4,32 +4,24 @@
 **Phase:** 3 — AI Command Center  
 **Status:** IN PROGRESS
 
-## Status labels
-- NOT STARTED — not begun
-- IN PROGRESS — actively being built
-- BLOCKED — a dependency prevents progress
-- TESTING — implementation is being checked
-- VERIFIED — checks passed and evidence recorded
-- COMPLETED — phase requirements satisfied
-
 ## Completed
 - [x] GitHub repository and foundation structure created
-- [x] OpenRouter account and local API key configured
-- [x] First live OpenRouter smoke test succeeded on the user's Mac
+- [x] OpenRouter account configured and first API request successfully tested on the user's Mac
 - [x] Reusable dependency-free OpenRouter client added
-- [x] Planning-only executive orchestrator added
-- [x] Executive orchestrator usage and safety boundaries documented
+- [x] Planning-only executive orchestrator tested successfully by the user
+- [x] Local JSON task storage added
+- [x] Task listing and inspection CLI added
+- [x] Local task records excluded from Git
 
 ## In progress
-- [ ] Pull and run the orchestrator locally
-- [ ] Validate structured task plans with real prompts
-- [ ] Improve malformed-response handling and plan validation
-- [ ] Add persistent task records after the planning flow is stable
+- [ ] Pull and test local task saving on the user's Mac
+- [ ] Test listing and inspecting saved task records
+- [ ] Add stronger validation and task status updates
 
 ## Not started
 - [ ] Specialist agent execution and delegation
 - [ ] Human approval workflow runtime
-- [ ] Shared memory/database
+- [ ] Shared database or synchronized memory
 - [ ] Workflow automation
 - [ ] Dashboard
 - [ ] Division deployments
@@ -40,14 +32,17 @@
 | 2026-11-20 | Modular and provider-neutral | Minimize lock-in |
 | 2026-11-20 | Free-first | Keep initial spend at R0 where feasible |
 | 2026-11-20 | Avoid heavy local inference on current Mac | Limited memory/resources |
-| 2026-11-20 | OpenRouter as first gateway integration | Single API endpoint for supported models |
-| 2026-11-20 | Planning-only orchestrator first | Validate task decomposition before enabling execution |
+| 2026-11-20 | OpenRouter as first gateway integration | One endpoint for supported models |
+| 2026-11-20 | Planning-only orchestrator first | Validate decomposition before execution |
+| 2026-11-20 | Local JSON task storage for first milestone | Avoid database setup and dependencies |
 
 ## Verification notes
-- OpenRouter connectivity was successfully tested on the user's Mac.
-- The reusable client and orchestrator have been committed to GitHub but the new orchestrator has not yet been tested on the user's Mac.
-- No specialist agents are running yet. The orchestrator only proposes roles and creates a plan; it does not execute steps or take external actions.
-- API keys must remain in the local ignored `.env` file and must never be committed.
+- The user successfully tested OpenRouter connectivity and received a response.
+- The user successfully ran the planning-only orchestrator and shared its structured five-step plan.
+- Task storage and CLI code are committed but have not yet been tested locally by the user.
+- Task records are local only and are excluded from Git. They are not cloud-synchronized.
+- No specialist agents are executing tasks yet. The system only plans and stores them.
+- API keys remain in the local ignored `.env` file and must never be committed.
 
 ## Next action
-Run the planning-only orchestrator locally with a sample task, inspect the JSON plan, and fix any issues before adding execution or delegation.
+Pull the latest changes, save a test plan, then list and inspect it locally.
