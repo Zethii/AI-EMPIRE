@@ -54,8 +54,20 @@ The plan is a proposal for the human to review, not permission to execute it."""
 
 
 def extract_json(content: Any) -> dict[str, Any]:
-    if not isinstance(content, str):
-        raise ValueError("Model returned a non-text response.")
+    # Some OpenRouter models return content as an array of typed text blocks.
+    if isinstance(content, list):
+        text_parts = []
+        for part in content:
+            if isinstance(part, str):
+                text_parts.append(part)
+            elif isinstance(part, dict) and isinstance(part.get("text"), str):
+                text_parts.append(part["text"])
+        content = "\\n".join(text_parts)
+    if not isinstance(content, str) or not content.strip():
+        raise ValueError(
+            "Model returned no readable text. The selected free model may use "
+            "a different response format; try again or select another model."
+        )
     text = content.strip()
     if text.startswith("```"):
         text = text.strip("`")
