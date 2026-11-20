@@ -1,6 +1,6 @@
-# Candidate provider registry; not configured.
+# Candidate provider registry; no API connections configured.
 version: 1
-status: draft
+status: evaluation
 providers:
   openai:
     enabled: false
@@ -16,6 +16,8 @@ providers:
     connection: not_configured
 gateway:
   selected: null
+  recommended_candidate: openrouter
+  evaluation_document: docs/MODEL_GATEWAY_RESEARCH.md
   candidates:
     - openrouter
     - direct-provider-apis
