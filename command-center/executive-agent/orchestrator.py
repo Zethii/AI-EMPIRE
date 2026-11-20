@@ -79,8 +79,8 @@ def validate_plan(plan: dict[str, Any]) -> None:
         raise ValueError("Plan must contain between 3 and 7 steps.")
     approval_terms = (
         "publish", "publishing", "post ", "posting", "upload", "send ", "sending",
-        "email", "contact ", "contacting", "outreach", "distribut", "survey",
-        "interview", "invite ", "inviting", "purchase", "buy ", "spend", "payment",
+        "email", "contact ", "contacting", "outreach", "distribut", "send survey",
+        "conduct interview", "interview participants", "invite ", "inviting", "purchase", "buy ", "spend", "payment",
         "delete", "remove ", "share private", "production deploy", "deploy to production",
     )
     any_approval = False
