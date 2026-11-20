@@ -1,0 +1,28 @@
+# Agent directory: planned roles, not active model-backed agents.
+version: 1
+status: design
+agents:
+  executive-orchestrator:
+    file: agents/executive-orchestrator/AGENT.md
+    category: coordination
+    enabled: false
+  research-specialist:
+    file: agents/research-specialist/AGENT.md
+    category: research
+    enabled: false
+  strategist:
+    file: agents/strategist/AGENT.md
+    category: planning
+    enabled: false
+  developer:
+    file: agents/developer/AGENT.md
+    category: engineering
+    enabled: false
+  content-producer:
+    file: agents/content-producer/AGENT.md
+    category: creative
+    enabled: false
+  quality-auditor:
+    file: agents/quality-auditor/AGENT.md
+    category: quality
+    enabled: false
