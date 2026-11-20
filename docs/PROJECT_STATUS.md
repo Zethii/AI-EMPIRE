@@ -1,7 +1,7 @@
 # AI-EMPIRE Project Status
 
 **Updated:** 2026-11-20  
-**Phase:** 2 — Model Gateway  
+**Phase:** 3 — AI Command Center  
 **Status:** IN PROGRESS
 
 ## Status labels
@@ -13,23 +13,22 @@
 - COMPLETED — phase requirements satisfied
 
 ## Completed
-- [x] GitHub repository created and made public
-- [x] Project README and foundation structure added
-- [x] OpenRouter selected as the initial model gateway candidate
-- [x] OpenRouter account and API key created
-- [x] Local `.env` configuration created; secret remains outside Git
-- [x] Dependency-free Python smoke test added
-- [x] First successful request and response received from OpenRouter
+- [x] GitHub repository and foundation structure created
+- [x] OpenRouter account and local API key configured
+- [x] First live OpenRouter smoke test succeeded on the user's Mac
+- [x] Reusable dependency-free OpenRouter client added
+- [x] Planning-only executive orchestrator added
+- [x] Executive orchestrator usage and safety boundaries documented
 
 ## In progress
-- [ ] Turn the smoke test into a reusable model-gateway client
-- [ ] Add model selection and clear error handling
-- [ ] Record provider/model metadata and usage safely (never log secrets)
+- [ ] Pull and run the orchestrator locally
+- [ ] Validate structured task plans with real prompts
+- [ ] Improve malformed-response handling and plan validation
+- [ ] Add persistent task records after the planning flow is stable
 
 ## Not started
-- [ ] Task intake and orchestrator runtime
-- [ ] Specialist agent execution
-- [ ] Human approval workflow
+- [ ] Specialist agent execution and delegation
+- [ ] Human approval workflow runtime
 - [ ] Shared memory/database
 - [ ] Workflow automation
 - [ ] Dashboard
@@ -41,12 +40,14 @@
 | 2026-11-20 | Modular and provider-neutral | Minimize lock-in |
 | 2026-11-20 | Free-first | Keep initial spend at R0 where feasible |
 | 2026-11-20 | Avoid heavy local inference on current Mac | Limited memory/resources |
-| 2026-11-20 | Use OpenRouter as the first gateway integration | One API endpoint can provide access to multiple model providers |
+| 2026-11-20 | OpenRouter as first gateway integration | Single API endpoint for supported models |
+| 2026-11-20 | Planning-only orchestrator first | Validate task decomposition before enabling execution |
 
 ## Verification notes
-- The local script `integrations/model-gateway/openrouter_test.py` successfully received a response from OpenRouter.
-- This verifies the initial API connection only. It does not yet verify multi-agent orchestration, other providers, automation, or dashboard functionality.
+- OpenRouter connectivity was successfully tested on the user's Mac.
+- The reusable client and orchestrator have been committed to GitHub but the new orchestrator has not yet been tested on the user's Mac.
+- No specialist agents are running yet. The orchestrator only proposes roles and creates a plan; it does not execute steps or take external actions.
 - API keys must remain in the local ignored `.env` file and must never be committed.
 
 ## Next action
-Build a small reusable OpenRouter gateway client, then test selectable models before connecting it to the orchestrator.
+Run the planning-only orchestrator locally with a sample task, inspect the JSON plan, and fix any issues before adding execution or delegation.
