@@ -1,0 +1,23 @@
+# Draft routing policy only; no router is running.
+version: 1
+status: draft
+defaults:
+  require_human_approval_for_external_actions: true
+  retry_limit: 2
+  timeout_seconds: 120
+routing:
+  research:
+    capabilities: [web_research, reasoning, source_synthesis]
+    review_required: true
+  coding:
+    capabilities: [code_generation, debugging, code_review]
+    review_required: true
+  writing:
+    capabilities: [writing, editing]
+    review_required: false
+  media:
+    capabilities: [creative_writing, planning, multimodal]
+    review_required: true
+  general:
+    capabilities: [general_reasoning]
+    review_required: false
