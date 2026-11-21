@@ -120,10 +120,16 @@ def message_text(response: dict[str, Any]) -> str:
         detail = "The response appears to contain non-text media."
     else:
         detail = "The provider returned an empty or unsupported assistant content format."
+    if finish_reason == "length":
+        guidance = (
+            "The model exhausted its token budget before producing readable text. "
+            "Increase --max-tokens or select a text-capable model with a larger output limit."
+        )
+    else:
+        guidance = "Try another text-capable model or inspect the provider response format."
     raise GatewayError(
         f"Model returned no readable text ({detail} "
-        f"finish_reason={finish_reason}; message_fields={message_keys}). "
-        "Try another text-capable model or inspect the provider response format."
+        f"finish_reason={finish_reason}; message_fields={message_keys}). {guidance}"
     )
 
 
