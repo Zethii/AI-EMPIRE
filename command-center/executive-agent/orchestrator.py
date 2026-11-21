@@ -1,159 +1,62 @@
 #!/usr/bin/env python3
-"""AI-EMPIRE v0.1 executive orchestrator: turn one request into a reviewable plan.
-
-This version plans only. It does not execute subtasks, use tools, or take external actions.
-"""
+"""Planning-only AI-EMPIRE orchestrator."""
 from __future__ import annotations
-
-import argparse
-import json
-import sys
+import argparse,json,sys
 from pathlib import Path
 from typing import Any
-
-ROOT = Path(__file__).resolve().parents[2]
-GATEWAY_DIR = ROOT / "integrations" / "model-gateway"
-sys.path.insert(0, str(GATEWAY_DIR))
-
-from client import GatewayError, chat_completion  # noqa: E402
-TASK_MANAGER_DIR = ROOT / "command-center" / "task-manager"
-sys.path.insert(0, str(TASK_MANAGER_DIR))
-from task_store import save_plan  # noqa: E402
-
-
-SYSTEM_PROMPT = """You are the planning component of AI-EMPIRE.
-Convert the user's request into a safe, practical execution plan.
-Return ONLY one valid JSON object with this exact structure:
-{
-  "task_title": "short title",
-  "goal": "one or two sentence goal",
-  "assumptions": ["assumption"],
-  "steps": [
-    {
-      "step_id": "S1",
-      "title": "short action",
-      "description": "specific, actionable explanation",
-      "suggested_agent": "research-specialist | strategist | developer | content-producer | quality-auditor",
-      "depends_on": [],
-      "approval_required": false
-    }
-  ],
-  "risks": ["risk or uncertainty"],
-  "requires_human_approval": false
-}
-Create 3 to 7 ordered steps. Use dependencies such as ["S1"] only when needed.
-Set approval_required true for steps involving publishing, posting, uploading, sending messages,
-emails, contacting people, outreach, distributing surveys, inviting interview participants,
-conducting interviews with external people, purchases, spending money, deleting data,
-sharing private information, or production changes. Researching public information and
-drafting an unsent survey do not require approval; actually distributing it does.
-If any step requires approval, set requires_human_approval true.
-Never claim a step has been completed. Do not invent access, facts, or capabilities.
-If the request is ambiguous, list assumptions rather than pretending certainty.
-The plan is a proposal for the human to review, not permission to execute it."""
-
-
-def extract_json(content: Any) -> dict[str, Any]:
-    # Some OpenRouter models return content as an array of typed text blocks.
-    if isinstance(content, list):
-        text_parts = []
-        for part in content:
-            if isinstance(part, str):
-                text_parts.append(part)
-            elif isinstance(part, dict) and isinstance(part.get("text"), str):
-                text_parts.append(part["text"])
-        content = "\\n".join(text_parts)
-    if not isinstance(content, str) or not content.strip():
-        raise ValueError(
-            "Model returned no readable text. The selected free model may use "
-            "a different response format; try again or select another model."
-        )
-    text = content.strip()
-    if text.startswith("```"):
-        text = text.strip("`")
-        if text.startswith("json"):
-            text = text[4:].strip()
-    start, end = text.find("{"), text.rfind("}")
-    if start < 0 or end <= start:
-        raise ValueError("Model response did not contain a JSON object.")
-    data = json.loads(text[start:end + 1])
-    if not isinstance(data, dict):
-        raise ValueError("Plan must be a JSON object.")
-    return data
-
-
-def validate_plan(plan: dict[str, Any]) -> None:
-    required = {"task_title", "goal", "steps", "requires_human_approval"}
-    missing = required - plan.keys()
-    if missing:
-        raise ValueError("Plan is missing fields: " + ", ".join(sorted(missing)))
-    if not isinstance(plan["steps"], list) or not 3 <= len(plan["steps"]) <= 7:
-        raise ValueError("Plan must contain between 3 and 7 steps.")
-    approval_terms = (
-        "publish", "publishing", "post ", "posting", "upload", "send ", "sending",
-        "email", "contact ", "contacting", "outreach", "distribut", "send survey",
-        "conduct interview", "interview participants", "invite ", "inviting", "purchase", "buy ", "spend", "payment",
-        "delete", "remove ", "share private", "production deploy", "deploy to production",
-    )
-    any_approval = False
-    for index, step in enumerate(plan["steps"], start=1):
-        if not isinstance(step, dict):
-            raise ValueError(f"Step {index} is not an object.")
-        for field in ("step_id", "title", "description", "suggested_agent", "depends_on", "approval_required"):
-            if field not in step:
-                raise ValueError(f"Step {index} is missing '{field}'.")
-        if not isinstance(step["depends_on"], list):
-            raise ValueError(f"Step {index} dependencies must be a list.")
-        if not isinstance(step["approval_required"], bool):
-            raise ValueError(f"Step {index} approval_required must be true or false.")
-        action_text = (str(step["title"]) + " " + str(step["description"])).lower()
-        if any(term in action_text for term in approval_terms):
-            step["approval_required"] = True
-        any_approval = any_approval or step["approval_required"]
-    if not isinstance(plan["requires_human_approval"], bool):
-        raise ValueError("requires_human_approval must be true or false.")
-    # Enforce the task-level flag if any individual step needs human approval.
-    plan["requires_human_approval"] = plan["requires_human_approval"] or any_approval
-
-
-def create_plan(user_request: str, model: str | None = None) -> dict[str, Any]:
-    response = chat_completion(
-        [
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": user_request},
-        ],
-        model=model,
-        temperature=0.1,
-        max_tokens=1400,
-    )
-    content = response["choices"][0]["message"]["content"]
-    plan = extract_json(content)
-    validate_plan(plan)
-    plan["status"] = "PLANNED"
-    plan["execution_enabled"] = False
-    return plan
-
-
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Create a reviewable AI-EMPIRE task plan.")
-    parser.add_argument("request", help="Describe the task you want AI-EMPIRE to plan.")
-    parser.add_argument("--save", action="store_true", help="Save the plan locally in data/tasks/.")
-    args = parser.parse_args()
-    user_request = args.request.strip()
-    if not user_request:
-        parser.error("Please provide a non-empty task description.")
-
-    try:
-        plan = create_plan(user_request)
-        if args.save:
-            saved_path = save_plan(plan, user_request)
-            plan["saved_to"] = str(saved_path.relative_to(ROOT))
-    except (GatewayError, ValueError, json.JSONDecodeError, OSError) as exc:
-        print(f"Could not create or save the plan: {exc}")
-        raise SystemExit(1)
-
-    print(json.dumps(plan, indent=2, ensure_ascii=False))
-
-
-if __name__ == "__main__":
-    main()
+ROOT=Path(__file__).resolve().parents[2]
+sys.path.insert(0,str(ROOT/"integrations"/"model-gateway"))
+from client import GatewayError,chat_completion,message_text
+sys.path.insert(0,str(ROOT/"command-center"/"task-manager"))
+from task_store import save_plan
+SYSTEM="""You are AI-EMPIRE's planning assistant. Return ONLY a JSON object with keys task_title, goal, assumptions (array), steps (3-7 items), risks (array), requires_human_approval (boolean). Each step has step_id, title, description, suggested_agent, depends_on (array), approval_required (boolean). Mark approval for sending/contacting/outreach/interviews/distributing surveys, posting/publishing/uploading, purchases/payments, deleting, exposing private data, or production changes. Research and drafting alone need no approval. If any step needs approval set the task flag true. Plans are proposals, never completed work."""
+TERMS=("publish","publishing","post ","posting","upload","send ","sending","email","contact ","contacting","outreach","distribut","survey participant","interview participant","invite ","purchase","buy ","spend","payment","delete","remove ","share private","production deploy","deploy to production")
+def extract_json(content:Any)->dict:
+ text=message_text({"choices":[{"message":{"content":content}}]}).strip()
+ if text.startswith("```"):
+  lines=text.splitlines()
+  if lines and lines[0].strip().startswith("```"): lines=lines[1:]
+  if lines and lines[-1].strip()=="```": lines=lines[:-1]
+  text="\n".join(lines).strip()
+ start,end=text.find("{"),text.rfind("}")
+ if start<0 or end<start: raise ValueError("Model response did not contain JSON.")
+ try: result=json.loads(text[start:end+1])
+ except json.JSONDecodeError as e: raise ValueError(f"Invalid JSON at character {e.pos}: {e.msg}") from None
+ if not isinstance(result,dict): raise ValueError("Plan JSON must be an object.")
+ return result
+def validate_plan(p:dict)->None:
+ for field in ("task_title","goal","steps","requires_human_approval"):
+  if field not in p: raise ValueError(f"Missing plan field: {field}")
+ steps=p["steps"]
+ if not isinstance(steps,list) or not 3<=len(steps)<=7: raise ValueError("Plan must have 3-7 steps.")
+ ids=set(); needs=False
+ for idx,s in enumerate(steps,1):
+  if not isinstance(s,dict): raise ValueError(f"Step {idx} must be an object.")
+  for f in ("step_id","title","description","suggested_agent","depends_on","approval_required"):
+   if f not in s: raise ValueError(f"Step {idx} missing {f}")
+  if not isinstance(s["step_id"],str) or s["step_id"] in ids: raise ValueError(f"Duplicate/invalid step ID in step {idx}")
+  ids.add(s["step_id"])
+  if not isinstance(s["depends_on"],list) or not isinstance(s["approval_required"],bool): raise ValueError(f"Invalid step fields in {s['step_id']}")
+  if any(x not in ids and x not in [later["step_id"] for later in steps] for x in s["depends_on"]): raise ValueError(f"Unknown dependency in {s['step_id']}")
+  action=(s["title"]+" "+s["description"]).lower()
+  if any(t in action for t in TERMS): s["approval_required"]=True
+  needs |= s["approval_required"]
+ if not isinstance(p["requires_human_approval"],bool): raise ValueError("Task approval flag must be boolean.")
+ p["requires_human_approval"]=p["requires_human_approval"] or needs
+def create_plan(request:str,model:str|None=None)->dict:
+ response=chat_completion([{"role":"system","content":SYSTEM},{"role":"user","content":request}],model=model,temperature=0.1,max_tokens=1600)
+ plan=extract_json(response["choices"][0]["message"].get("content"));validate_plan(plan)
+ plan["status"]="PLANNED";plan["execution_enabled"]=False
+ return plan
+def main():
+ ap=argparse.ArgumentParser(description="Create a task plan proposal.")
+ ap.add_argument("request");ap.add_argument("--save",action="store_true");ap.add_argument("--model")
+ a=ap.parse_args()
+ if not a.request.strip(): ap.error("Request cannot be empty.")
+ try:
+  p=create_plan(a.request.strip(),a.model)
+  if a.save: p["saved_to"]=str(save_plan(p,a.request.strip()).relative_to(ROOT))
+ except (GatewayError,ValueError,OSError) as e:
+  print("Plan failed: "+str(e),file=sys.stderr);raise SystemExit(1)
+ print(json.dumps(p,indent=2,ensure_ascii=False))
+if __name__=="__main__":main()
