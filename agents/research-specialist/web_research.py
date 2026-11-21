@@ -9,7 +9,7 @@ import re
 SEARCH_URL="https://html.duckduckgo.com/html/"
 
 def clean(text: str) -> str:
-    return re.sub(r"\\s+", " ", re.sub(r"<[^>]+>", " ", text)).strip()
+    return " ".join(re.sub(r"<[^>]+>", " ", text).split())
 
 class DDGParser(HTMLParser):
     """Parse result titles, destination links, and snippets from DDG HTML."""
