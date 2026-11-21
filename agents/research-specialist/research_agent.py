@@ -29,6 +29,7 @@ Rules:
 - No outreach, publishing, purchases, file changes or external actions.
 Write executive summary, evidence findings, counterpoints, recommendation, and confidence."""
 
+
 def main():
     parser = argparse.ArgumentParser(description="Research specialist with optional web search; no external actions.")
     parser.add_argument("topic")
@@ -43,12 +44,14 @@ def main():
         parser.error("Topic cannot be blank.")
 
     evidence = []
+    search_errors = []
     if args.web:
         queries = [topic, topic + " market demand", topic + " pain points reviews"][:args.searches]
         for query in queries:
             try:
                 evidence.extend(search(query, limit=args.results_per_query))
             except RuntimeError as exc:
+                search_errors.append(str(exc))
                 print(f"Search warning: {exc}", file=sys.stderr)
 
     unique = []
@@ -59,6 +62,14 @@ def main():
             seen.add(url)
             unique.append(row)
     evidence = unique
+
+    if args.web and not evidence and search_errors:
+        print(
+            "Research stopped: web retrieval failed for every query. "
+            "No evidence-based report was generated. Fix provider access or supply --notes.",
+            file=sys.stderr,
+        )
+        raise SystemExit(2)
 
     source_text = "\n\n".join(
         f"[{i}] Title: {row['title']}\nURL: {row['url']}\nSnippet: {row.get('snippet') or '(snippet unavailable)'}"
@@ -87,12 +98,13 @@ def main():
     if args.web:
         if not evidence:
             print(
-                "Warning: zero parseable results; this may be a retrieval/parser failure, "
-                "not evidence that no relevant information exists.",
+                "Warning: search providers returned no results. This is not evidence "
+                "that no relevant information or demand exists.",
                 file=sys.stderr,
             )
         print(f"Web search gathered {len(evidence)} unique result(s); snippets only, not full-page verification.\n")
     print(report)
+
 
 if __name__ == "__main__":
     main()
