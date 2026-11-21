@@ -150,18 +150,56 @@ def run_hybrid(task: str, *, config: dict[str, Any] | None = None,
         f"REVIEWER {i} — {r['model']} ({r['status']}):\n{r['review']}"
         for i, r in enumerate(reviews, 1)
     )
+
+    discussion: list[dict[str, str]] = []
+    discussion_config = config.get("discussion", {})
+    if isinstance(discussion_config, dict) and discussion_config.get("enabled", False):
+        participants = [lead, *reviewer_models]
+        for turn, participant in enumerate(participants, 1):
+            prior_dialogue = "\n\n".join(
+                f"{entry['model']} ({entry['status']}):\n{entry['contribution']}"
+                for entry in discussion
+            ) or "No one has spoken in the discussion yet. You are opening it."
+            prompt = (
+                "You are taking part in the AI-EMPIRE post-review discussion. All "
+                "independent reviews are complete. Respond directly to the strongest "
+                "points and disagreements in the reviews and any earlier discussion. "
+                "Correct your own earlier claims if needed, distinguish evidence from "
+                "assumptions, and identify what the final plan must resolve. Do not "
+                "simply repeat your review.\n\n"
+                f"{model_context}\n\nTASK:\n{task}\n\nLEAD DRAFT:\n{draft}\n\n"
+                f"ALL INDEPENDENT REVIEWS:\n{review_text}\n\n"
+                f"EARLIER DISCUSSION TURNS:\n{prior_dialogue}\n\n"
+                f"Your turn: {turn} of {len(participants)}. Speak as {participant}."
+            )
+            try:
+                contribution = ask(participant, prompt, max_tokens)
+                status = "completed"
+            except GatewayError as exc:
+                contribution = str(exc)
+                status = "failed"
+            discussion.append({"model": participant, "status": status,
+                               "contribution": contribution})
+
+    discussion_text = "\n\n".join(
+        f"DISCUSSION — {entry['model']} ({entry['status']}):\n{entry['contribution']}"
+        for entry in discussion
+    ) or "Discussion phase disabled."
     synthesis_prompt = (
-        "You are the lead model completing a hybrid collaboration. Synthesize your "
-        "draft and the independent reviews into one answer. Resolve disagreements "
-        "explicitly, incorporate valid corrections, preserve unresolved dissent and "
-        "state remaining uncertainty. Never claim external actions were performed.\n\n"
+        "You are the lead model completing a hybrid collaboration. Use the draft, "
+        "all independent reviews and the post-review discussion to suggest a clear, "
+        "actionable final plan. Resolve disagreements explicitly, incorporate valid "
+        "corrections, preserve unresolved dissent, and state remaining uncertainty. "
+        "Never claim external actions were performed.\n\n"
         f"{model_context}\n\nTASK:\n{task}\n\nYOUR FIRST DRAFT:\n{draft}\n\n"
         f"INDEPENDENT REVIEWS:\n{review_text}\n\n"
-        "Return the final answer followed by a short Review notes section."
+        f"POST-REVIEW DISCUSSION:\n{discussion_text}\n\n"
+        "Return a suggested final plan with ordered steps, dependencies or decision "
+        "points, risks, and a short section noting how model feedback was resolved."
     )
     final = ask(lead, synthesis_prompt, max_tokens)
     return {"task": task, "mode": "hybrid", "lead_model": lead,
-            "reviewers": reviews, "final": final}
+            "reviewers": reviews, "discussion": discussion, "final": final}
 
 
 def main() -> None:
@@ -189,7 +227,12 @@ def main() -> None:
         for item in result["reviewers"]:
             print(f"\n--- {item['model']} ({item['status']}) ---")
             print(item["review"])
-        print(f"\n--- Final synthesis by {result['lead_model']} ---\n")
+        if result.get("discussion"):
+            print("\nPost-review model discussion:")
+            for item in result["discussion"]:
+                print(f"\n--- {item['model']} ({item['status']}) ---")
+                print(item["contribution"])
+        print(f"\n--- Suggested final plan by {result['lead_model']} ---\n")
         print(result["final"])
 
 

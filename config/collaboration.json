@@ -72,10 +72,15 @@
   "notes": [
     "Models are routed through OpenRouter; these are not direct-provider API connections.",
     "Model availability and pricing change; confirm them in OpenRouter before live runs.",
-    "The hierarchy is one lead draft, seven independent reviews, then a lead synthesis.",
+    "The hierarchy is one lead draft, seven independent reviews, one discussion turn from the lead and each reviewer, then a final plan synthesis.",
     "Every model receives the complete repository capability registry in its prompt.",
     "Capability profiles describe intended review strengths; they do not grant API tools or guarantee performance.",
-    "A default run makes nine model requests: one lead draft, seven reviews and final synthesis."
+    "A default run makes seventeen model requests: one lead draft, seven reviews, eight discussion turns and final plan synthesis."
   ],
-  "skills_file": "config/model_skills.json"
+  "skills_file": "config/model_skills.json",
+  "discussion": {
+    "enabled": true,
+    "participants": "lead_and_all_reviewers",
+    "rounds": 1
+  }
 }
