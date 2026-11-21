@@ -60,8 +60,8 @@ def main():
             unique.append(row)
     evidence = unique
 
-    source_text = "\\n\\n".join(
-        f"[{i}] Title: {row['title']}\\nURL: {row['url']}\\nSnippet: {row.get('snippet') or '(snippet unavailable)'}"
+    source_text = "\n\n".join(
+        f"[{i}] Title: {row['title']}\nURL: {row['url']}\nSnippet: {row.get('snippet') or '(snippet unavailable)'}"
         for i, row in enumerate(evidence, 1)
     ) or "(No search results.)"
     report_date = datetime.now(timezone.utc).date().isoformat()
@@ -91,7 +91,7 @@ def main():
                 "not evidence that no relevant information exists.",
                 file=sys.stderr,
             )
-        print(f"Web search gathered {len(evidence)} unique result(s); snippets only, not full-page verification.\\n")
+        print(f"Web search gathered {len(evidence)} unique result(s); snippets only, not full-page verification.\n")
     print(report)
 
 if __name__ == "__main__":
