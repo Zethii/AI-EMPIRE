@@ -37,7 +37,8 @@ def main():
     parser.add_argument("--web", action="store_true", help="Search public web result snippets (requires internet).")
     parser.add_argument("--searches", type=int, default=3, choices=range(1, 6))
     parser.add_argument("--results-per-query", type=int, default=5, choices=range(1, 11))
-    parser.add_argument("--model", default=None)
+    parser.add_argument("--model", default=None, help="Optional OpenRouter model ID.")
+    parser.add_argument("--max-tokens", type=int, default=6000, help="Maximum response token budget (default: 6000).")
     args = parser.parse_args()
     topic = args.topic.strip()
     if not topic:
@@ -88,7 +89,7 @@ def main():
             [{"role": "user", "content": prompt}],
             model=args.model,
             temperature=0.2,
-            max_tokens=1800,
+            max_tokens=args.max_tokens,
         )
         report = message_text(response)
     except GatewayError as exc:
