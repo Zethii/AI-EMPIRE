@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "mode": "hybrid",
+  "gateway": "openrouter",
+  "models": {
+    "lead": {"provider": "openai", "label": "GPT", "model_id": "openai/gpt-4.1", "role": "lead", "enabled": true},
+    "reviewer_1": {"provider": "anthropic", "label": "Claude", "model_id": "anthropic/claude-sonnet-4", "role": "independent_reviewer", "enabled": true},
+    "reviewer_2": {"provider": "google", "label": "Gemini", "model_id": "google/gemini-2.5-flash", "role": "independent_reviewer", "enabled": true},
+    "reviewer_3": {"provider": "xai", "label": "Grok", "model_id": "x-ai/grok-3", "role": "optional_reviewer", "enabled": false}
+  },
+  "default_reviewers": ["reviewer_1", "reviewer_2"],
+  "notes": [
+    "These are configurable OpenRouter model IDs, not direct-provider API connections.",
+    "Confirm current model availability and pricing in OpenRouter before running.",
+    "The default uses one lead and two reviewers to limit API usage.",
+    "Grok can be selected explicitly with AI_EMPIRE_REVIEWER_MODELS or --reviewers."
+  ]
+}
