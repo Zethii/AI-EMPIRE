@@ -99,6 +99,25 @@ def ask(model: str, prompt: str, max_tokens: int) -> str:
     return message_text(response)
 
 
+def _credit_error(exc: GatewayError) -> bool:
+    message = str(exc).lower()
+    return "http 402" in message or any(
+        phrase in message for phrase in (
+            "insufficient credit", "insufficient funds", "out of credits",
+            "not enough credits", "account balance",
+        )
+    )
+
+
+def _paused_result(task: str, lead: str, reviews: list[dict[str, str]],
+                   discussion: list[dict[str, str]], reason: str) -> dict[str, Any]:
+    return {
+        "task": task, "mode": "hybrid", "status": "paused",
+        "inputs_complete": False, "lead_model": lead, "reviewers": reviews,
+        "discussion": discussion, "final": None, "pause_reason": reason,
+    }
+
+
 def run_hybrid(task: str, *, config: dict[str, Any] | None = None,
                lead_model: str | None = None,
                reviewer_models: list[str] | None = None,
@@ -129,7 +148,12 @@ def run_hybrid(task: str, *, config: dict[str, Any] | None = None,
         "Do not claim to have taken actions or verified facts you have not verified.\n\n"
         f"{model_context}\n\nTASK:\n{task}"
     )
-    draft = ask(lead, draft_prompt, max_tokens)
+    try:
+        draft = ask(lead, draft_prompt, max_tokens)
+    except GatewayError as exc:
+        reason = ("Credit limit reached while collecting the lead draft."
+                  if _credit_error(exc) else "Lead draft input failed.")
+        return _paused_result(task, lead, [], [], reason)
     reviews = []
     for reviewer in reviewer_models:
         prompt = (
@@ -145,6 +169,13 @@ def run_hybrid(task: str, *, config: dict[str, Any] | None = None,
                             "review": ask(reviewer, prompt, max_tokens)})
         except GatewayError as exc:
             reviews.append({"model": reviewer, "status": "failed", "review": str(exc)})
+            if _credit_error(exc):
+                return _paused_result(task, lead, reviews, [],
+                                     f"Credit limit reached while collecting review from {reviewer}.")
+
+    if any(item["status"] != "completed" for item in reviews):
+        return _paused_result(task, lead, reviews, [],
+                             "A reviewer input is missing; no discussion or final plan was generated.")
 
     review_text = "\n\n".join(
         f"REVIEWER {i} — {r['model']} ({r['status']}):\n{r['review']}"
@@ -180,6 +211,13 @@ def run_hybrid(task: str, *, config: dict[str, Any] | None = None,
                 status = "failed"
             discussion.append({"model": participant, "status": status,
                                "contribution": contribution})
+            if status == "failed" and _credit_error(GatewayError(contribution)):
+                return _paused_result(task, lead, reviews, discussion,
+                                     f"Credit limit reached during discussion turn for {participant}.")
+
+    if any(item["status"] != "completed" for item in discussion):
+        return _paused_result(task, lead, reviews, discussion,
+                             "A discussion input is missing; no final plan was generated.")
 
     discussion_text = "\n\n".join(
         f"DISCUSSION — {entry['model']} ({entry['status']}):\n{entry['contribution']}"
@@ -197,9 +235,19 @@ def run_hybrid(task: str, *, config: dict[str, Any] | None = None,
         "Return a suggested final plan with ordered steps, dependencies or decision "
         "points, risks, and a short section noting how model feedback was resolved."
     )
-    final = ask(lead, synthesis_prompt, max_tokens)
-    return {"task": task, "mode": "hybrid", "lead_model": lead,
-            "reviewers": reviews, "discussion": discussion, "final": final}
+    try:
+        final = ask(lead, synthesis_prompt, max_tokens)
+    except GatewayError as exc:
+        return {
+            "task": task, "mode": "hybrid", "status": "paused",
+            "inputs_complete": True, "lead_model": lead, "reviewers": reviews,
+            "discussion": discussion, "final": None,
+            "pause_reason": ("Credit limit reached during final plan synthesis."
+                             if _credit_error(exc) else "Final plan synthesis failed."),
+        }
+    return {"task": task, "mode": "hybrid", "status": "completed",
+            "inputs_complete": True, "lead_model": lead, "reviewers": reviews,
+            "discussion": discussion, "final": final}
 
 
 def main() -> None:
@@ -232,8 +280,14 @@ def main() -> None:
             for item in result["discussion"]:
                 print(f"\n--- {item['model']} ({item['status']}) ---")
                 print(item["contribution"])
-        print(f"\n--- Suggested final plan by {result['lead_model']} ---\n")
-        print(result["final"])
+        if result["status"] == "paused":
+            print(f"\nPAUSED: {result['pause_reason']}")
+            print("No final plan was generated; resolve the failure and rerun to continue.")
+        else:
+            print(f"\n--- Suggested final plan by {result['lead_model']} ---\n")
+            print(result["final"])
+    if result["status"] == "paused":
+        raise SystemExit(2)
 
 
 if __name__ == "__main__":

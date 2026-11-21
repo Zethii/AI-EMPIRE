@@ -31,7 +31,7 @@ Run from the repository root:
 Select a different reviewer panel:
     python3 orchestrator/collaboration.py "Review this plan" --lead openai/gpt-6.2-astra --reviewers qwen/qwen4-max,z-ai/glm-5.3,anthropic/claude-fable-5.2
 
-Use --json for structured output. The default run makes seventeen model requests (one draft, seven reviews, eight discussion turns and the final plan). The normal output shows every model review and discussion turn before the final plan. Sharing the registry adds input tokens to each request, so check current model availability and pricing before running.
+Use --json for structured output. The default run makes seventeen model requests (one draft, seven reviews, eight discussion turns and the final plan). The normal output shows every model review and discussion turn before the final plan. If a model call fails for lack of credits, the run pauses and does not start the next stage or produce a final plan until all inputs have succeeded. Sharing the registry adds input tokens to each request, so check current model availability and pricing before running.
 
 Optional environment overrides:
 - AI_EMPIRE_LEAD_MODEL

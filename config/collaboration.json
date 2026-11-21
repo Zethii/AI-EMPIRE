@@ -75,7 +75,8 @@
     "The hierarchy is one lead draft, seven independent reviews, one discussion turn from the lead and each reviewer, then a final plan synthesis.",
     "Every model receives the complete repository capability registry in its prompt.",
     "Capability profiles describe intended review strengths; they do not grant API tools or guarantee performance.",
-    "A default run makes seventeen model requests: one lead draft, seven reviews, eight discussion turns and final plan synthesis."
+    "A default run makes seventeen model requests: one lead draft, seven reviews, eight discussion turns and final plan synthesis.",
+    "On credit or other model-call failure, the run pauses; it never advances to a final plan with missing contributions."
   ],
   "skills_file": "config/model_skills.json",
   "discussion": {
