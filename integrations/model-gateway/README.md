@@ -13,7 +13,7 @@ OpenRouter is the first working gateway integration for the AI-EMPIRE proof of c
 - orchestrator/collaboration.py — hybrid multi-model runner using this gateway.
 
 ## Multiple model families through one gateway
-The hybrid MVP calls different model families using OpenRouter model IDs. Initial roles: GPT lead, Claude and Gemini reviewers, Grok optional reviewer. These are different models, but requests still pass through OpenRouter and use the OpenRouter account/key. Direct provider APIs are a later integration.
+The hybrid MVP calls different model families using OpenRouter model IDs. The current default panel uses GPT-6.2 Astra as lead and Claude Opus 5.5, Gemini 4 Neon, Grok 4.7 and DeepSeek V4.1 Flash as reviewers; Qwen4 Max, GLM 5.3 and Claude Fable 5.2 are optional. Requests pass through OpenRouter and use the OpenRouter account/key. Direct provider APIs are a later integration.
 
 See config/collaboration.json and the repository README for usage.
 

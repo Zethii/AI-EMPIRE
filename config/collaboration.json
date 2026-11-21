@@ -3,16 +3,74 @@
   "mode": "hybrid",
   "gateway": "openrouter",
   "models": {
-    "lead": {"provider": "openai", "label": "GPT", "model_id": "openai/gpt-4.1", "role": "lead", "enabled": true},
-    "reviewer_1": {"provider": "anthropic", "label": "Claude", "model_id": "anthropic/claude-sonnet-4", "role": "independent_reviewer", "enabled": true},
-    "reviewer_2": {"provider": "google", "label": "Gemini", "model_id": "google/gemini-2.5-flash", "role": "independent_reviewer", "enabled": true},
-    "reviewer_3": {"provider": "xai", "label": "Grok", "model_id": "x-ai/grok-3", "role": "optional_reviewer", "enabled": false}
+    "lead": {
+      "provider": "openai",
+      "label": "GPT-6.2 Astra",
+      "model_id": "openai/gpt-6.2-astra",
+      "role": "lead",
+      "enabled": true
+    },
+    "reviewer_1": {
+      "provider": "anthropic",
+      "label": "Claude Opus 5.5",
+      "model_id": "anthropic/claude-opus-5.5",
+      "role": "independent_reviewer",
+      "enabled": true
+    },
+    "reviewer_2": {
+      "provider": "google",
+      "label": "Gemini 4 Neon",
+      "model_id": "google/gemini-4-neon",
+      "role": "independent_reviewer",
+      "enabled": true
+    },
+    "reviewer_3": {
+      "provider": "xai",
+      "label": "Grok 4.7",
+      "model_id": "x-ai/grok-4.7",
+      "role": "independent_reviewer",
+      "enabled": true
+    },
+    "reviewer_4": {
+      "provider": "deepseek",
+      "label": "DeepSeek V4.1 Flash 1017",
+      "model_id": "deepseek/deepseek-v4.1-flash-1017",
+      "role": "independent_reviewer",
+      "enabled": true
+    },
+    "reviewer_5": {
+      "provider": "qwen",
+      "label": "Qwen4 Max",
+      "model_id": "qwen/qwen4-max",
+      "role": "optional_reviewer",
+      "enabled": true
+    },
+    "reviewer_6": {
+      "provider": "zai",
+      "label": "GLM 5.3",
+      "model_id": "z-ai/glm-5.3",
+      "role": "optional_reviewer",
+      "enabled": true
+    },
+    "reviewer_7": {
+      "provider": "anthropic",
+      "label": "Claude Fable 5.2",
+      "model_id": "anthropic/claude-fable-5.2",
+      "role": "optional_reviewer",
+      "enabled": true
+    }
   },
-  "default_reviewers": ["reviewer_1", "reviewer_2"],
+  "default_reviewers": [
+    "reviewer_1",
+    "reviewer_2",
+    "reviewer_3",
+    "reviewer_4"
+  ],
   "notes": [
-    "These are configurable OpenRouter model IDs, not direct-provider API connections.",
-    "Confirm current model availability and pricing in OpenRouter before running.",
-    "The default uses one lead and two reviewers to limit API usage.",
-    "Grok can be selected explicitly with AI_EMPIRE_REVIEWER_MODELS or --reviewers."
+    "Models are routed through OpenRouter; these are not direct-provider API connections.",
+    "Model availability and pricing change; confirm them in OpenRouter before live runs.",
+    "The default uses GPT-6.2 Astra plus four independent reviewers from Anthropic, Google, xAI and DeepSeek.",
+    "Qwen4 Max, GLM 5.3 and Claude Fable 5.2 are available as optional reviewers via AI_EMPIRE_REVIEWER_MODELS or --reviewers.",
+    "A default run makes six model requests: lead draft, four reviews and final synthesis."
   ]
 }

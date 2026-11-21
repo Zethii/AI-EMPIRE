@@ -23,15 +23,15 @@ AI-EMPIRE is a modular multi-model AI workspace designed to coordinate independe
 3. The lead synthesizes feedback into one final answer.
 4. Failed reviewers are reported rather than silently ignored.
 
-Initial roles: GPT lead, Claude and Gemini reviewers, Grok optional reviewer. Model IDs are configurable. All models currently route through OpenRouter; direct provider API connections are not implemented yet.
+The default panel uses GPT-6.2 Astra as lead, with Claude Opus 5.5, Gemini 4 Neon, Grok 4.7 and DeepSeek V4.1 Flash as independent reviewers. Qwen4 Max, GLM 5.3 and Claude Fable 5.2 are also configured as optional reviewers. Model IDs are configurable. All models currently route through OpenRouter; direct provider API connections are not implemented yet.
 
 Run from the repository root:
     python3 orchestrator/collaboration.py "Compare three digital product ideas for gaming editors"
 
-Include Grok or override model IDs:
-    python3 orchestrator/collaboration.py "Review this plan" --lead openai/gpt-4.1 --reviewers anthropic/claude-sonnet-4,google/gemini-2.5-flash,x-ai/grok-3
+Select a different reviewer panel:
+    python3 orchestrator/collaboration.py "Review this plan" --lead openai/gpt-6.2-astra --reviewers qwen/qwen4-max,z-ai/glm-5.3,anthropic/claude-fable-5.2
 
-Use --json for structured output. The default run makes three model requests (one lead draft, two reviews) plus a final synthesis request, so it can incur usage costs. Check current model availability and pricing before running.
+Use --json for structured output. The default run makes six model requests (one lead draft, four reviews and a final synthesis), so usage costs are higher than the original three-model setup. Check current model availability and pricing before running.
 
 Optional environment overrides:
 - AI_EMPIRE_LEAD_MODEL

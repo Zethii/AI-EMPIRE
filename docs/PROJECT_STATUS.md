@@ -11,7 +11,7 @@ Updated: 2026-11-21
 - Standard-library OpenRouter gateway and response text extractor.
 - Planning orchestrator JSON parsing and basic plan validation.
 - Hybrid collaboration MVP: lead draft -> independent reviewer models -> lead synthesis.
-- Configurable GPT, Claude, Gemini and optional Grok model roles via OpenRouter IDs.
+- Configurable OpenAI, Anthropic, Google, xAI, DeepSeek, Qwen and Z.ai model roles via OpenRouter IDs, including a four-provider default reviewer panel.
 - Reviewer failures are surfaced in structured output.
 - Research specialist MVP with web search snippets and AgentSearch fallback.
 - Offline unit test files for gateway/orchestrator parsing, web search parsing and collaboration.
@@ -25,7 +25,7 @@ Updated: 2026-11-21
 ## Limitations
 - Collaboration currently makes sequential calls through OpenRouter; it is not parallel.
 - Direct OpenAI, Anthropic, Google and xAI API adapters are not implemented.
-- Model IDs in config are candidates and may need updating based on current availability.
+- Model IDs in config are current candidates and may need updating as provider availability and pricing change.
 - API calls may incur costs; check provider pricing and account limits.
 - No agent tool execution, shared memory/database, dashboard or autonomous external actions.
 - Search snippets are not full-page verification.
