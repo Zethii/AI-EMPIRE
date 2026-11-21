@@ -1,15 +1,24 @@
-# Agent directory: planned roles, not active model-backed agents.
+# Agent directory: role contracts and MVP implementation status.
 version: 1
-status: design
+status: mvp
 agents:
   executive-orchestrator:
     file: agents/executive-orchestrator/AGENT.md
     category: coordination
     enabled: false
+    status: planning-only
   research-specialist:
     file: agents/research-specialist/AGENT.md
+    implementation: agents/research-specialist/research_agent.py
     category: research
     enabled: false
+    status: mvp-awaiting-local-test
+    capabilities:
+      - analyze-user-provided research notes
+      - produce structured report with limitations
+    restrictions:
+      - no web browsing
+      - no external outreach or actions
   strategist:
     file: agents/strategist/AGENT.md
     category: planning
