@@ -64,13 +64,18 @@
     "reviewer_1",
     "reviewer_2",
     "reviewer_3",
-    "reviewer_4"
+    "reviewer_4",
+    "reviewer_5",
+    "reviewer_6",
+    "reviewer_7"
   ],
   "notes": [
     "Models are routed through OpenRouter; these are not direct-provider API connections.",
     "Model availability and pricing change; confirm them in OpenRouter before live runs.",
-    "The default uses GPT-6.2 Astra plus four independent reviewers from Anthropic, Google, xAI and DeepSeek.",
-    "Qwen4 Max, GLM 5.3 and Claude Fable 5.2 are available as optional reviewers via AI_EMPIRE_REVIEWER_MODELS or --reviewers.",
-    "A default run makes six model requests: lead draft, four reviews and final synthesis."
-  ]
+    "The hierarchy is one lead draft, seven independent reviews, then a lead synthesis.",
+    "Every model receives the complete repository capability registry in its prompt.",
+    "Capability profiles describe intended review strengths; they do not grant API tools or guarantee performance.",
+    "A default run makes nine model requests: one lead draft, seven reviews and final synthesis."
+  ],
+  "skills_file": "config/model_skills.json"
 }

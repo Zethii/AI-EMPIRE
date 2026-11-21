@@ -23,7 +23,7 @@ AI-EMPIRE is a modular multi-model AI workspace designed to coordinate independe
 3. The lead synthesizes feedback into one final answer.
 4. Failed reviewers are reported rather than silently ignored.
 
-The default panel uses GPT-6.2 Astra as lead, with Claude Opus 5.5, Gemini 4 Neon, Grok 4.7 and DeepSeek V4.1 Flash as independent reviewers. Qwen4 Max, GLM 5.3 and Claude Fable 5.2 are also configured as optional reviewers. Model IDs are configurable. All models currently route through OpenRouter; direct provider API connections are not implemented yet.
+Hierarchy: GPT-6.2 Astra drafts, all seven configured reviewers critique that same draft independently, then GPT-6.2 Astra synthesizes their input. Reviewers are Claude Opus 5.5, Gemini 4 Neon, Grok 4.7, DeepSeek V4.1 Flash, Qwen4 Max, GLM 5.3 and Claude Fable 5.2. The full capability registry in config/model_skills.json is included in every model prompt so each model can use the team’s strengths. These profiles guide review focus; they do not grant API tools. All models route through OpenRouter; direct provider API connections are not implemented yet.
 
 Run from the repository root:
     python3 orchestrator/collaboration.py "Compare three digital product ideas for gaming editors"
@@ -31,7 +31,7 @@ Run from the repository root:
 Select a different reviewer panel:
     python3 orchestrator/collaboration.py "Review this plan" --lead openai/gpt-6.2-astra --reviewers qwen/qwen4-max,z-ai/glm-5.3,anthropic/claude-fable-5.2
 
-Use --json for structured output. The default run makes six model requests (one lead draft, four reviews and a final synthesis), so usage costs are higher than the original three-model setup. Check current model availability and pricing before running.
+Use --json for structured output. The default run makes nine model requests (one lead draft, seven reviews and a final synthesis). The normal output shows each model review before the final synthesis. Sharing the registry adds input tokens to each request, so check current model availability and pricing before running.
 
 Optional environment overrides:
 - AI_EMPIRE_LEAD_MODEL

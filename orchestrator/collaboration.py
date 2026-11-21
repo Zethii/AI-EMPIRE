@@ -23,7 +23,64 @@ def load_config(path: Path | None = None) -> dict[str, Any]:
         raise ValueError(f"Invalid collaboration config JSON: {exc}") from None
     if not isinstance(data, dict) or not isinstance(data.get("models"), dict):
         raise ValueError("Config must contain a models object.")
+    skills_file = data.get("skills_file", "config/model_skills.json")
+    if not isinstance(skills_file, str) or not skills_file.strip():
+        raise ValueError("skills_file must be a non-empty path.")
+    skills_path = Path(skills_file)
+    if not skills_path.is_absolute():
+        skills_path = ROOT / skills_path
+    try:
+        skills = json.loads(skills_path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        raise ValueError(f"Model skills file not found: {skills_path}") from None
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Invalid model skills JSON: {exc}") from None
+    if not isinstance(skills, dict) or not isinstance(skills.get("models"), dict):
+        raise ValueError("Model skills file must contain a models object.")
+    data["model_skills"] = skills
     return data
+
+
+def shared_skill_context(config: dict[str, Any], selected_models: list[str]) -> str:
+    skills = config.get("model_skills", {})
+    profiles = skills.get("models", {}) if isinstance(skills, dict) else {}
+    lines = [
+        "SHARED MODEL CAPABILITY REGISTRY (all participating models receive this):",
+        str(skills.get("purpose", "Use these as capability guidance, not guarantees.")),
+    ]
+    for principle in skills.get("shared_principles", []) if isinstance(skills, dict) else []:
+        lines.append(f"- Shared rule: {principle}")
+
+    configured = config.get("models", {})
+    seen: set[str] = set()
+    for role, item in configured.items():
+        if not isinstance(item, dict):
+            continue
+        model = item.get("model_id")
+        if not isinstance(model, str) or model in seen:
+            continue
+        seen.add(model)
+        profile = profiles.get(model, {})
+        label = item.get("label") or profile.get("label") or role
+        strengths = profile.get("strengths", []) if isinstance(profile, dict) else []
+        focus = profile.get("review_focus", []) if isinstance(profile, dict) else []
+        lines.append(
+            f"- {label} ({model}) — strengths: {', '.join(strengths) or 'general model capabilities'}; "
+            f"focus: {', '.join(focus) or 'provide an independent, evidence-aware perspective'}"
+        )
+
+    for model in selected_models:
+        if model not in seen:
+            profile = profiles.get(model, {})
+            label = profile.get("label", model) if isinstance(profile, dict) else model
+            strengths = profile.get("strengths", []) if isinstance(profile, dict) else []
+            focus = profile.get("review_focus", []) if isinstance(profile, dict) else []
+            lines.append(
+                f"- Selected model {label} ({model}) — strengths: "
+                f"{', '.join(strengths) or 'no repository profile; use general model capabilities'}; "
+                f"focus: {', '.join(focus) or 'provide an independent, evidence-aware perspective'}"
+            )
+    return "\n".join(lines)
 
 
 def model_id(config: dict[str, Any], role: str) -> str:
@@ -64,10 +121,13 @@ def run_hybrid(task: str, *, config: dict[str, Any] | None = None,
     if lead in reviewer_models:
         raise ValueError("The lead model must be different from reviewer models.")
 
+    model_context = shared_skill_context(config, [lead, *reviewer_models])
     draft_prompt = (
         "You are the lead model in AI-EMPIRE. Produce a useful first-pass answer. "
-        "State assumptions and uncertainty. Do not claim to have taken actions or "
-        "verified facts you have not verified.\n\nTASK:\n" + task
+        "Use the shared capability registry to anticipate complementary review, but "
+        "make your own evidence-based judgment. State assumptions and uncertainty. "
+        "Do not claim to have taken actions or verified facts you have not verified.\n\n"
+        f"{model_context}\n\nTASK:\n{task}"
     )
     draft = ask(lead, draft_prompt, max_tokens)
     reviews = []
@@ -76,7 +136,9 @@ def run_hybrid(task: str, *, config: dict[str, Any] | None = None,
             "You are an independent reviewer. Critically review the lead draft. "
             "Identify factual risks, missing steps, weak logic, alternative approaches "
             "and specific improvements. Do not merely agree. If you cannot verify a "
-            "claim, say so.\n\nTASK:\n" + task + "\n\nLEAD DRAFT:\n" + draft
+            "claim, say so. Use your model's listed strengths while considering the "
+            "full registry so your review complements the other models.\n\n"
+            f"{model_context}\n\nTASK:\n{task}\n\nLEAD DRAFT:\n{draft}"
         )
         try:
             reviews.append({"model": reviewer, "status": "completed",
@@ -93,7 +155,7 @@ def run_hybrid(task: str, *, config: dict[str, Any] | None = None,
         "draft and the independent reviews into one answer. Resolve disagreements "
         "explicitly, incorporate valid corrections, preserve unresolved dissent and "
         "state remaining uncertainty. Never claim external actions were performed.\n\n"
-        f"TASK:\n{task}\n\nYOUR FIRST DRAFT:\n{draft}\n\n"
+        f"{model_context}\n\nTASK:\n{task}\n\nYOUR FIRST DRAFT:\n{draft}\n\n"
         f"INDEPENDENT REVIEWS:\n{review_text}\n\n"
         "Return the final answer followed by a short Review notes section."
     )
@@ -123,10 +185,12 @@ def main() -> None:
         print(json.dumps(result, indent=2, ensure_ascii=False))
     else:
         print(f"Lead: {result['lead_model']}")
-        print("Reviewers:")
+        print("Individual model reviews:")
         for item in result["reviewers"]:
-            print(f"- {item['model']}: {item['status']}")
-        print("\n" + result["final"])
+            print(f"\n--- {item['model']} ({item['status']}) ---")
+            print(item["review"])
+        print(f"\n--- Final synthesis by {result['lead_model']} ---\n")
+        print(result["final"])
 
 
 if __name__ == "__main__":

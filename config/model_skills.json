@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "purpose": "Shared capability and review-focus notes for collaboration prompts. These are guidance, not guaranteed abilities or tool permissions.",
+  "shared_principles": [
+    "Every model can see every profile below; use that knowledge to complement the other perspectives, not to defer to a model by name.",
+    "Separate verified facts, assumptions and uncertainty. Do not claim tools, browsing or external actions that were not provided.",
+    "Challenge weak reasoning respectfully and identify concrete corrections or unresolved disagreements."
+  ],
+  "models": {
+    "openai/gpt-6.2-astra": {
+      "label": "GPT-6.2 Astra",
+      "strengths": [
+        "complex reasoning",
+        "software and professional work",
+        "scientific analysis"
+      ],
+      "review_focus": [
+        "integrate competing evidence",
+        "check reasoning structure",
+        "produce a clear synthesis"
+      ]
+    },
+    "anthropic/claude-opus-5.5": {
+      "label": "Claude Opus 5.5",
+      "strengths": [
+        "demanding reasoning",
+        "coding and code review",
+        "long-horizon tasks"
+      ],
+      "review_focus": [
+        "find subtle omissions",
+        "inspect implications across steps",
+        "test whether conclusions follow from evidence"
+      ]
+    },
+    "google/gemini-4-neon": {
+      "label": "Gemini 4 Neon",
+      "strengths": [
+        "coding",
+        "agentic and multi-step work",
+        "multimodal STEM when supported by the interface"
+      ],
+      "review_focus": [
+        "check technical feasibility",
+        "look for missing dependencies",
+        "flag input types this text-only runner cannot inspect"
+      ]
+    },
+    "x-ai/grok-4.7": {
+      "label": "Grok 4.7",
+      "strengths": [
+        "coding",
+        "agentic tasks",
+        "knowledge work"
+      ],
+      "review_focus": [
+        "challenge assumptions",
+        "surface alternatives",
+        "identify practical failure modes"
+      ]
+    },
+    "deepseek/deepseek-v4.1-flash-1017": {
+      "label": "DeepSeek V4.1 Flash 1017",
+      "strengths": [
+        "efficient reasoning",
+        "coding and technical problem solving",
+        "long-context work"
+      ],
+      "review_focus": [
+        "check step-by-step logic",
+        "find simpler approaches",
+        "identify unsupported technical claims"
+      ]
+    },
+    "qwen/qwen4-max": {
+      "label": "Qwen4 Max",
+      "strengths": [
+        "general reasoning",
+        "technical and professional tasks",
+        "multimodal inputs when supported by the interface"
+      ],
+      "review_focus": [
+        "check completeness",
+        "look for edge cases",
+        "flag input types this text-only runner cannot inspect"
+      ]
+    },
+    "z-ai/glm-5.3": {
+      "label": "GLM 5.3",
+      "strengths": [
+        "software engineering",
+        "long-horizon reasoning",
+        "technical problem solving"
+      ],
+      "review_focus": [
+        "check implementation detail",
+        "spot brittle assumptions",
+        "suggest robust alternatives"
+      ]
+    },
+    "anthropic/claude-fable-5.2": {
+      "label": "Claude Fable 5.2",
+      "strengths": [
+        "demanding open-ended reasoning",
+        "advanced coding",
+        "complex technical analysis"
+      ],
+      "review_focus": [
+        "probe difficult edge cases",
+        "challenge hidden assumptions",
+        "preserve important uncertainty"
+      ]
+    }
+  }
+}

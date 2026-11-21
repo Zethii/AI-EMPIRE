@@ -11,7 +11,8 @@ Updated: 2026-11-21
 - Standard-library OpenRouter gateway and response text extractor.
 - Planning orchestrator JSON parsing and basic plan validation.
 - Hybrid collaboration MVP: lead draft -> independent reviewer models -> lead synthesis.
-- Configurable OpenAI, Anthropic, Google, xAI, DeepSeek, Qwen and Z.ai model roles via OpenRouter IDs, including a four-provider default reviewer panel.
+- Configurable OpenAI, Anthropic, Google, xAI, DeepSeek, Qwen and Z.ai model roles via OpenRouter IDs, with all seven reviewer models included by default.
+- Shared model capability registry included in lead, reviewer and synthesis prompts; CLI prints each individual review.
 - Reviewer failures are surfaced in structured output.
 - Research specialist MVP with web search snippets and AgentSearch fallback.
 - Offline unit test files for gateway/orchestrator parsing, web search parsing and collaboration.
