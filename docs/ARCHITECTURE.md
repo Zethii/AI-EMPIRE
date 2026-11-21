@@ -1,56 +1,63 @@
-# AI-EMPIRE Architecture — Blueprint
+# AI-EMPIRE Architecture
 
-This describes the intended architecture. Candidate services are not installed or verified yet.
+This describes the current MVP and intended direction. Candidate services are not installed or verified unless stated.
 
 ## Request flow
 1. User submits a task.
 2. Executive orchestrator interprets it and creates a plan.
-3. Router selects suitable agents/models based on capabilities, task type, cost, and availability.
-4. Specialists work on scoped tasks and return structured results.
-5. Review agents check evidence, quality, completeness, and risks.
-6. Orchestrator consolidates the deliverable and reports verified actions and remaining work.
+3. Router selects a lead model and supporting reviewers based on task type, capability, cost and availability.
+4. The lead produces a first draft.
+5. Independent models review the same task and draft.
+6. The lead synthesizes feedback, identifies disagreements and returns one result.
+7. Specialist workflows can be added around this model collaboration layer.
 
-## Hierarchy
-- Executive orchestrator: planning, delegation, synthesis, approval gates, final reporting.
-- Division leads: Digital Business, YouTube/AI Media, Gaming, Software Development, Research.
-- Specialists: research, writing, coding, analysis, production, SEO, automation.
-- Auditors: critique, fact-check, test, and identify gaps.
+## Model identities vs specialist agents
+These are separate concepts:
+- Models/providers: GPT (OpenAI), Claude (Anthropic), Gemini (Google), Grok (xAI) and other model families. Each has its own model ID and provider integration.
+- Specialist agents: research, coding, writing, marketing, analysis and QA roles. An agent is a workflow/persona powered by a selected model.
 
-## Collaboration modes
-- Discussion: independent responses compared.
-- Review: agent output receives critique and revision.
-- Execution: plan, delegate, monitor, validate, deliver.
-- Human approval: required before external, destructive, sensitive, or financial actions.
+A model is not the same thing as an agent role. The system should assign different models to the same role and different roles to different models.
 
-## Candidate infrastructure
-| Layer | Candidate | Purpose | State |
-|---|---|---|
-| Chat interface | LibreChat | Unified multi-model chat | Research pending |
-| Model gateway | OpenRouter or direct APIs | Model routing | Research pending |
-| Automation | n8n | Scheduled/event-driven workflows | Research pending |
-| Database/memory | PostgreSQL/Supabase | Shared task data | Research pending |
-| Version control | GitHub | Code/docs/configuration | Repository created |
+## Hybrid collaboration pattern
+- Lead model creates the first draft and final synthesis.
+- Review models independently critique the draft and identify missing evidence, risks, alternatives and errors.
+- Synthesis incorporates valid feedback and preserves unresolved disagreements.
+- Reviewer failures are recorded and shown, not silently treated as successful reviews.
+- Default: one lead plus two reviewers. Additional reviewers are optional.
+- Initial transport: OpenRouter. These model IDs represent different model families routed through OpenRouter, not direct provider API connections.
+- Current execution is sequential; parallel execution is a future optimization.
 
-## Divisions
-- digital-business: ideas, validation, products, pricing, sales, distribution.
-- youtube-media: channels, research, scripts, video workflow, thumbnails, analytics.
-- gaming-content: gameplay concepts, edits, short/long formats, platform adaptation.
-- software-development: requirements, design, implementation, testing, documentation.
-- research: evidence, comparisons, verification, intelligence reports.
+## Current MVP entry points
+- Gateway: integrations/model-gateway/client.py
+- Model roles: config/collaboration.json
+- Hybrid runner: orchestrator/collaboration.py
+- Tests: tests/test_collaboration.py
+
+## Planned hierarchy
+- Executive orchestrator: planning, delegation, synthesis, approval gates and final reporting.
+- Division leads: Digital Business, YouTube/AI Media, Gaming, Software Development and Research.
+- Specialists: research, writing, coding, analysis, production, SEO and automation.
+- Auditors: critique, fact-check, test and identify gaps.
 
 ## Task lifecycle
 REQUESTED -> PLANNED -> APPROVAL (if required) -> ASSIGNED -> RUNNING -> REVIEW -> REVISION -> VERIFIED -> DELIVERED
 
-Tasks may also become BLOCKED, FAILED, or CANCELLED.
+Tasks may also become BLOCKED, FAILED or CANCELLED.
 
 ## Safety
 - Never commit credentials or expose secrets in logs.
 - Validate inputs and external responses.
 - Use timeouts and bounded retries.
-- Store only necessary task metadata and memory.
-- Do not claim an external action succeeded without confirmation.
-- Require approval for publishing, purchases, deletion, production changes, and external communications.
+- Treat model output as untrusted input; do not execute it automatically.
+- Require approval for publishing, purchases, deletion, production changes and external communications.
 - Fact-check important outputs and state uncertainty.
+- Never claim an external action succeeded without confirmation.
 
-## Modularity
-Keep provider integrations, agents, workflows, divisions, storage, and UI replaceable behind clear interfaces.
+## Future infrastructure
+| Layer | Candidate | Purpose | State |
+|---|---|---|---|
+| Model gateway | OpenRouter | Initial multi-model routing | Basic connection tested by user |
+| Direct provider adapters | OpenAI, Anthropic, Google, xAI | Optional direct API routes | Not implemented |
+| Automation | n8n | Scheduled/event-driven workflows | Research pending |
+| Database/memory | PostgreSQL/Supabase | Shared task data and memory | Research pending |
+| Version control | GitHub | Code, docs and configuration | Repository created |
