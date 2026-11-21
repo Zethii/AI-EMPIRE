@@ -13,5 +13,9 @@ class ParserTests(unittest.TestCase):
   self.assertEqual(p.items[0]["snippet"],"Alpha snippet")
   self.assertEqual(p.items[1]["url"],"https://example.org/b")
   self.assertEqual(p.items[1]["snippet"],"Beta snippet text")
- def test_whitespace(self):self.assertEqual(clean(" x  y\n z "), "x y z")
+ def test_whitespace(self):
+  self.assertEqual(clean(" x  y\\n z "), "x y z")
+  self.assertEqual(clean(" x\\ty\\nz "), "x y z")
+  self.assertEqual(clean(" x\\u00a0 y "), "x y")
+  self.assertEqual(clean("  x\\u00a0\\t y\\n z  "), "x y z")
 if __name__=="__main__":unittest.main()
