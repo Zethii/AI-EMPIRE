@@ -4,24 +4,29 @@ Updated: 2026-11-21
 
 ## User-verified milestones
 - OpenRouter key and basic connection tested locally by user.
-- Orchestrator generated a plan; user provided saved task list confirming TASK-FA1AC34138.
+- Orchestrator generated a plan; user confirmed TASK-FA1AC34138.
 - Local task storage has been exercised by the user.
 
 ## Implemented in GitHub; local verification pending
-- Standard-library OpenRouter gateway and content text extractor.
+- Standard-library OpenRouter gateway and response text extractor.
 - Planning orchestrator JSON parsing and basic plan validation.
-- Keyword-based plan approval flagging (heuristic only; not a runtime action-control security boundary).
-- Research specialist MVP: optional DuckDuckGo HTML search for search-result snippets and AI synthesis; no full page fetching or source verification.
-- Offline unit test files for gateway/orchestrator parsing and search HTML parsing.
+- Hybrid collaboration MVP: lead draft -> independent reviewer models -> lead synthesis.
+- Configurable GPT, Claude, Gemini and optional Grok model roles via OpenRouter IDs.
+- Reviewer failures are surfaced in structured output.
+- Research specialist MVP with web search snippets and AgentSearch fallback.
+- Offline unit test files for gateway/orchestrator parsing, web search parsing and collaboration.
 
 ## Awaiting Mac verification
-- Run offline unit tests on local machine.
-- Run orchestrator against current OpenRouter client.
-- Run Research Specialist with and without --web; confirm search access and output.
+- Pull latest repository changes.
+- Run: python3 -m unittest discover -s tests -v
+- Run the hybrid collaboration command with model IDs currently available in OpenRouter.
+- Confirm current model pricing and availability before live calls.
 
 ## Limitations
-- Search snippets are unverified and web access may be blocked/rate-limited.
-- No agent task delegation or autonomous task execution.
-- No approvals execution gate yet, no shared memory/database, no dashboard.
-- Research agent cannot perform outreach or other external actions.
-- .env and task data should remain ignored by Git.
+- Collaboration currently makes sequential calls through OpenRouter; it is not parallel.
+- Direct OpenAI, Anthropic, Google and xAI API adapters are not implemented.
+- Model IDs in config are candidates and may need updating based on current availability.
+- API calls may incur costs; check provider pricing and account limits.
+- No agent tool execution, shared memory/database, dashboard or autonomous external actions.
+- Search snippets are not full-page verification.
+- .env and task data must remain ignored by Git.
