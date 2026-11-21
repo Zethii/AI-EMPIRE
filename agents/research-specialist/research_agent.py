@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Research specialist with optional web search snippets; analysis only."""
 from __future__ import annotations
-import argparse,sys
+import argparse,sys\nfrom datetime import datetime, timezone
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/"integrations"/"model-gateway"))
@@ -47,7 +47,7 @@ def main():
   if url and url not in seen:seen.add(url);dedup.append(row)
  evidence=dedup
  source_text="\n\n".join(f"[{i}] Title: {r['title']}\nURL: {r['url']}\nSnippet: {r.get('snippet') or '(snippet unavailable)'}" for i,r in enumerate(evidence,1)) or "(No search results.)"
- prompt=ANALYSIS_PROMPT.format(topic=topic,notes=args.notes.strip() or "(No notes supplied.)",search_results=source_text)
+ report_date=datetime.now(timezone.utc).date().isoformat()\n prompt=ANALYSIS_PROMPT.format(topic=topic,report_date=report_date,notes=args.notes.strip() or "(No notes supplied.)",search_results=source_text)
  try:report=message_text(chat_completion([{"role":"user","content":prompt}],model=args.model,temperature=0.2,max_tokens=1800))
  except GatewayError as e:print(f"Research Agent error: {e}",file=sys.stderr);raise SystemExit(1)
  if args.web:print(f"Web search gathered {len(evidence)} unique result(s); snippets only, not full-page verification.\n")
