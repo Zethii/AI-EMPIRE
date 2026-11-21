@@ -12,22 +12,22 @@
     },
     "reviewer_1": {
       "provider": "anthropic",
-      "label": "Claude Opus 5.5",
-      "model_id": "anthropic/claude-opus-5.5",
+      "label": "Claude Fable Latest (currently 5.2)",
+      "model_id": "~anthropic/claude-fable-latest",
       "role": "independent_reviewer",
       "enabled": true
     },
     "reviewer_2": {
       "provider": "google",
-      "label": "Gemini 4 Neon",
-      "model_id": "google/gemini-4-neon",
+      "label": "Gemini Pro Latest (currently 4 Argon)",
+      "model_id": "~google/gemini-pro-latest",
       "role": "independent_reviewer",
       "enabled": true
     },
     "reviewer_3": {
       "provider": "xai",
-      "label": "Grok 4.7",
-      "model_id": "x-ai/grok-4.7",
+      "label": "Grok Latest (currently 4.7)",
+      "model_id": "~x-ai/grok-latest",
       "role": "independent_reviewer",
       "enabled": true
     },
@@ -54,8 +54,8 @@
     },
     "reviewer_7": {
       "provider": "anthropic",
-      "label": "Claude Fable 5.2",
-      "model_id": "anthropic/claude-fable-5.2",
+      "label": "Claude Opus 5.5",
+      "model_id": "anthropic/claude-opus-5.5",
       "role": "optional_reviewer",
       "enabled": true
     }
@@ -71,6 +71,8 @@
   ],
   "notes": [
     "Models are routed through OpenRouter; these are not direct-provider API connections.",
+    "Claude Fable, Gemini Pro and Grok use OpenRouter rolling latest aliases; they may resolve to newer releases over time.",
+    "GPT-6.2 Astra and Qwen4 Max are pinned to the current flagship text models listed in OpenRouter on 2026-11-21.",
     "Model availability and pricing change; confirm them in OpenRouter before live runs.",
     "The hierarchy is one lead draft, seven independent reviews, one discussion turn from the lead and each reviewer, then a final plan synthesis.",
     "Every model receives the complete repository capability registry in its prompt.",

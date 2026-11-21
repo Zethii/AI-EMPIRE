@@ -7,19 +7,6 @@
     "Challenge weak reasoning respectfully and identify concrete corrections or unresolved disagreements."
   ],
   "models": {
-    "openai/gpt-6.2-astra": {
-      "label": "GPT-6.2 Astra",
-      "strengths": [
-        "complex reasoning",
-        "software and professional work",
-        "scientific analysis"
-      ],
-      "review_focus": [
-        "integrate competing evidence",
-        "check reasoning structure",
-        "produce a clear synthesis"
-      ]
-    },
     "anthropic/claude-opus-5.5": {
       "label": "Claude Opus 5.5",
       "strengths": [
@@ -31,32 +18,6 @@
         "find subtle omissions",
         "inspect implications across steps",
         "test whether conclusions follow from evidence"
-      ]
-    },
-    "google/gemini-4-neon": {
-      "label": "Gemini 4 Neon",
-      "strengths": [
-        "coding",
-        "agentic and multi-step work",
-        "multimodal STEM when supported by the interface"
-      ],
-      "review_focus": [
-        "check technical feasibility",
-        "look for missing dependencies",
-        "flag input types this text-only runner cannot inspect"
-      ]
-    },
-    "x-ai/grok-4.7": {
-      "label": "Grok 4.7",
-      "strengths": [
-        "coding",
-        "agentic tasks",
-        "knowledge work"
-      ],
-      "review_focus": [
-        "challenge assumptions",
-        "surface alternatives",
-        "identify practical failure modes"
       ]
     },
     "deepseek/deepseek-v4.1-flash-1017": {
@@ -98,8 +59,8 @@
         "suggest robust alternatives"
       ]
     },
-    "anthropic/claude-fable-5.2": {
-      "label": "Claude Fable 5.2",
+    "~anthropic/claude-fable-latest": {
+      "label": "Claude Fable Latest (currently 5.2)",
       "strengths": [
         "demanding open-ended reasoning",
         "advanced coding",
@@ -109,6 +70,45 @@
         "probe difficult edge cases",
         "challenge hidden assumptions",
         "preserve important uncertainty"
+      ]
+    },
+    "~google/gemini-pro-latest": {
+      "label": "Gemini Pro Latest (currently 4 Argon)",
+      "strengths": [
+        "coding",
+        "agentic and multi-step work",
+        "multimodal STEM when supported by the interface"
+      ],
+      "review_focus": [
+        "check technical feasibility",
+        "look for missing dependencies",
+        "flag input types this text-only runner cannot inspect"
+      ]
+    },
+    "~x-ai/grok-latest": {
+      "label": "Grok Latest (currently 4.7)",
+      "strengths": [
+        "coding",
+        "agentic tasks",
+        "knowledge work"
+      ],
+      "review_focus": [
+        "challenge assumptions",
+        "surface alternatives",
+        "identify practical failure modes"
+      ]
+    },
+    "openai/gpt-6.2-astra": {
+      "label": "GPT-6.2 Astra",
+      "strengths": [
+        "complex reasoning",
+        "software and professional work",
+        "scientific analysis"
+      ],
+      "review_focus": [
+        "integrate competing evidence",
+        "check reasoning structure",
+        "produce a clear synthesis"
       ]
     }
   }

@@ -23,13 +23,13 @@ AI-EMPIRE is a modular multi-model AI workspace designed to coordinate independe
 3. The lead synthesizes feedback into one final answer.
 4. Failed reviewers are reported rather than silently ignored.
 
-Hierarchy: GPT-6.2 Astra drafts; all seven reviewers critique that same draft independently; then the lead opens a discussion where every reviewer responds in turn to all reviews and earlier discussion; finally, the lead suggests an ordered plan using the full exchange. Reviewers are Claude Opus 5.5, Gemini 4 Neon, Grok 4.7, DeepSeek V4.1 Flash, Qwen4 Max, GLM 5.3 and Claude Fable 5.2. The full capability registry in config/model_skills.json is included in every model prompt so each model can use the team’s strengths. These profiles guide review focus; they do not grant API tools. All models route through OpenRouter; direct provider API connections are not implemented yet.
+Hierarchy: GPT-6.2 Astra drafts; all seven reviewers critique that same draft independently; then the lead opens a discussion where every reviewer responds in turn to all reviews and earlier discussion; finally, the lead suggests an ordered plan using the full exchange. Reviewers are Claude Fable Latest, Gemini Pro Latest, Grok Latest, DeepSeek V4.1 Flash, Qwen4 Max, GLM 5.3 and Claude Opus 5.5. OpenRouter currently routes the rolling aliases to Claude Fable 5.2, Gemini 4 Argon and Grok 4.7; Qwen4 Max is pinned because no rolling text-model alias is listed. The full capability registry in config/model_skills.json is included in every model prompt so each model can use the team’s strengths. These profiles guide review focus; they do not grant API tools. All models route through OpenRouter; direct provider API connections are not implemented yet.
 
 Run from the repository root:
     python3 orchestrator/collaboration.py "Compare three digital product ideas for gaming editors"
 
 Select a different reviewer panel:
-    python3 orchestrator/collaboration.py "Review this plan" --lead openai/gpt-6.2-astra --reviewers qwen/qwen4-max,z-ai/glm-5.3,anthropic/claude-fable-5.2
+    python3 orchestrator/collaboration.py "Review this plan" --lead openai/gpt-6.2-astra --reviewers qwen/qwen4-max,z-ai/glm-5.3,~anthropic/claude-fable-latest
 
 Use --json for structured output. The default run makes seventeen model requests (one draft, seven reviews, eight discussion turns and the final plan). The normal output shows every model review and discussion turn before the final plan. If a model call fails for lack of credits, the run pauses and does not start the next stage or produce a final plan until all inputs have succeeded. Sharing the registry adds input tokens to each request, so check current model availability and pricing before running.
 
